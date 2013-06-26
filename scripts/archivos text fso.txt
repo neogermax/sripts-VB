@@ -1,0 +1,180 @@
+Ejemplo para leer y escribir datos en un archivo de texto con FileSystemObject
+
+Nota: incluir desde el menú de referencia de visual basic la referencia a : Microsft Scripting Runtime.
+
+ 
+Métodos de FSO para acceder a un archivo de texto
+
+Este ejemplo crea un archivo .txt en el App.path, escribe unas lineas en dicho archivo y por último lo cierra y lo vuelve a abrir para leer todo el contenido del mismo.
+
+Descripción de los métodos de FSO para acceder al archivo de texto
+
+    El método CreateTextFile crea un archivo indicandole el Path.
+    El método OpenTextFile Abre un fichero.
+    El método WriteLine escribe una linea en el archivo abierto
+    El método Readline lee una linea.
+    El método ReadAll permite leer todo el archivo de un saque
+    El método ReadLine permite leer una línea
+
+ 
+
+Nota: Se puede utilizar Fso mediante automatización creando un objeto de tipo FileSystemObject ( con CreateObject ) o referenciando la dll Microsoft Scripting Runtime desde el menú referencias de vb ( en este ejemplo se usa CreateObject )
+
+ 
+
+Código fuente en el formulario
+
+Texto planoImprimir
+
+    Dim obj_FSO As Object  
+       Dim Archivo As Object  
+         
+       Set obj_FSO = CreateObject("Scripting.FileSystemObject")  
+      
+       'Creamos un archivo con el método CreateTextFile  
+       Set Archivo = obj_FSO.CreateTextFile(App.Path & "MiArchivo.txt", True)  
+      
+       'Escribimos lineas  
+       Archivo.WriteLine "Una linea"  
+       Archivo.WriteLine "Otra linea"  
+       Archivo.WriteLine "Otra mas"  
+      
+       'Cerramos el fichero  
+       Archivo.Close  
+      
+       'Para abrir el archivo  
+       Set Archivo = obj_FSO.OpenTextFile(App.Path & "MiArchivo.txt", 1)  
+      
+       'Cargamos en el TextBox todo el archivo  
+       Text1 = Archivo.ReadAll  
+      
+       '///Nota: para leer una linea se utiliza ReadLine  
+       Archivo.Close  
+       Set obj_FSO = Nothing  
+       Set Archivo = Nothing  
+
+ 
+Otro ejemplo - Método TextStream
+
+Aqui hay dos funciones para leer y grabar un fichero de texto utilizando el objeto TextStream de FSO
+
+El ejemplo contiene dos funciones de ajuste. Una llamada LeerArchivo y otra guardarArchivo.
+
+A la primera se le debe indicar el path , y la función retorna un String con los datos del fichero. La función para guardar o crear , retorna un valor Boolean, si retorna true se pudo guardar el fichero correctamente, en caso contrario la función retorna False
+
+Nota: incluir desde el menú de referencia de visual basic la referencia a : Microsft Scripting Runtime.
+
+Código fuente de las dos funciones
+
+Texto planoImprimir
+
+    Option Explicit  
+      
+      
+    ' Objeto FileSystemObject  
+    Dim fso As New FileSystemObject  
+      
+    Public Function GuardarArchivo( _  
+        Ruta As String, _  
+        Contenido As String) As Boolean  
+          
+        Dim ObjDatos As TextStream     ' Objeto Fso para el Contenido del archivo  
+        Dim Datos As String            ' datos del fichero  
+      
+        On Error GoTo Error_Function:  
+          
+        Datos = Contenido  
+      
+        ' crea el archivo en la ruta indicada  
+        Set ObjDatos = fso.CreateTextFile(Ruta, True, True)  
+          
+        ' escribe los datos  
+        ObjDatos.Write (Datos)  
+        ' cierra el archivo abierto  
+        ObjDatos.Close  
+        GuardarArchivo = True  
+        Set fso = Nothing  
+          
+        Exit Function  
+    Error_Function:  
+        GuardarArchivo = False  
+        On Local Error Resume Next  
+        Set fso = Nothing  
+        MsgBox Err.Description  
+    End Function  
+      
+    Public Function LeerArchivo(Ruta As String) As String  
+        On Error GoTo Error_Function:  
+          
+        Dim ObjDatos As TextStream     ' Objeto Fso para el Contenido del archivo  
+        Dim Datos As String            ' datos del fichero  
+          
+        Datos = ""  
+        Set ObjDatos = fso.OpenTextFile(Ruta, ForReading, False, TristateMixed)  
+        While Not ObjDatos.AtEndOfStream  
+              Datos = Datos & ObjDatos.ReadAll  
+        Wend  
+        ' retorna el contenido leido  
+        LeerArchivo = Datos  
+        ' cierra el archivo abierto  
+        ObjDatos.Close  
+        Set fso = Nothing  
+    Exit Function  
+    Error_Function:  
+      
+    MsgBox Err.Description  
+    On Local Error Resume Next  
+    Set fso = Nothing  
+    End Function  
+
+ 
+
+Luego para utilizar las funciones :
+
+Para grabar un nuevo archivo se le pasa la ruta y los datos:
+
+GuardarArchivo "c:\archivo.txt", "Texto de prueba"
+
+ 
+
+Para leer y visualizarlo en un textBox , la ruta :
+
+Text1 = LeerArchivo("c:\archivo.txt")
+
+ 
+Leer linea por linea un archivo y mandarlo a imprimir
+
+En este caso se usa el método ReadLine del objeto TextStream para ir leyendo las líneas del fichero , y luego con printer se imprime
+
+ 
+
+Código fuente
+
+Texto planoImprimir
+
+    Private Sub Imprimir(Archivo As String)  
+      
+      
+    ' variable para fso  
+    Dim Obj_TextStream As Scripting.TextStream  
+    Dim Obj_Fso As New Scripting.FileSystemObject  
+    Dim Obj_File As File  
+      
+    Dim Linea_Actual As String  
+      
+       ' Referencia al archivo con GetFile  
+       Set Obj_File = Obj_Fso.GetFile(Archivo)  
+         
+       ' Lo abre con OpenAsTextStream  
+       Set Obj_TextStream = Obj_File.OpenAsTextStream(ForReading, TristateUseDefault)  
+         
+       ' recorre todo el contenido del fichero  
+       Do While Not Obj_TextStream.AtEndOfStream  
+          ' lee la linea  
+          Linea_Actual = Obj_TextStream.ReadLine  
+          Printer.Print Linea_Actual ' imprime con  
+       Loop  
+         
+       Printer.EndDoc  
+         
+    End Sub  

@@ -1,0 +1,5 @@
+resultados = App.Path & "\Var" & fecha & ".dll"
+
+    Open resultados For Output As #1
+        'Agregar texto
+        Print #1, "Hola"

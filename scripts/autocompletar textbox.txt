@@ -1,0 +1,127 @@
+Option Explicit
+
+Dim arrValues() As String
+
+'Flag para la tecla BackSpace
+Private bKeyBack As Boolean
+
+Public Function AutoCompletar_TextBox( _
+    textBox As textBox, pArrValues() As String)
+
+Dim i As Integer
+Dim posSelect As Integer
+
+    Select Case (bKeyBack Or Len(textBox.Text) = 0)
+        Case True
+            bKeyBack = False
+            Exit Function
+    End Select
+    With textBox
+        'Recorremos todos los elementos del array
+        For i = 0 To UBound(pArrValues)
+            ' Buscamos coincidencias
+            If InStr(1, pArrValues(i), .Text, vbTextCompare) = 1 Then
+                posSelect = .SelStart
+                ' asignar el texto de array al textbox
+                .Text = pArrValues(i)
+            
+                ' seleccionar el texto
+                .SelStart = posSelect
+                .SelLength = Len(.Text) - posSelect
+                Exit For ' salimos del bucle
+            End If
+        Next i
+
+    End With
+End Function
+
+' Rutina para guardar los valores en el archivo de historial
+Sub saveValues(pArrValues() As String, NewValue As String)
+
+    Dim lIndex As Long
+    ' redimensionar y preservar el array para añadir el nuevo valor
+    lIndex = UBound(pArrValues) + 1
+    ReDim Preserve pArrValues(lIndex)
+    
+    pArrValues(lIndex) = NewValue
+    
+    ' Abrir el archivo para guardar los datos
+    Open App.Path & "\history.dat" For Output As #1
+    
+    Dim i As Integer
+    
+    ' recorrer le vector
+    For i = 0 To UBound(pArrValues)
+        If pArrValues(i) <> "" Then
+            Print #1, pArrValues(i)
+        End If
+    Next
+    
+    Close
+    
+End Sub
+
+' rutina para cargar los valores desde el archivo .dat
+Sub LoadValues(pArrValues() As String)
+    
+    Dim lIndex As Long
+    Dim sValue As String
+    
+    Dim sPath As String
+    
+    sPath = App.Path & "\history.dat"
+    
+    If Len(Dir(sPath)) = 0 Then
+       Exit Sub
+    End If
+    
+    ' Abrir el archivo para guardar los datos
+    Open App.Path & "\history.dat" For Input As #1
+    
+    ' leer las lines del archivo
+    While Not EOF(1)
+        Line Input #1, sValue
+        ' agregar nuevo valor
+        ReDim Preserve pArrValues(lIndex)
+        If sValue <> "" Then
+            pArrValues(lIndex) = sValue
+        End If
+        lIndex = lIndex + 1
+    Wend
+       
+    Close
+End Sub
+
+Private Sub Command1_Click()
+    If Text1 <> "" Then
+        ' guardar los valores del array en el archivo de historial
+        Call saveValues(arrValues, Text1.Text)
+        Text1.Text = ""
+        MsgBox "Cerrar el formulario y comprobar que los valores se vuelven a cargar desde el archivo de texto", vbInformation
+    End If
+End Sub
+
+Private Sub Form_Load()
+    Text1 = ""
+    Command1.Caption = "Añadir valor"
+    ReDim arrValues(0)
+    
+    ' cargar los valores desde el archivo de texto en el array
+    Call LoadValues(arrValues)
+
+End Sub
+
+' Autocompletar al escribir en el textbox.
+Private Sub Text1_Change()
+    Call AutoCompletar_TextBox(Text1, arrValues) ' enviar el textbox y el vector con los valores
+End Sub
+
+Private Sub Text1_KeyDown(KeyCode As Integer, Shift As Integer)
+    Select Case KeyCode
+        Case vbKeyBack, vbKeyDelete
+            Select Case Len(Text1.Text)
+                Case Is <> 0
+                    bKeyBack = True
+            End Select
+    End Select
+End Sub

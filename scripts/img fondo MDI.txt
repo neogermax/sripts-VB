@@ -1,0 +1,13 @@
+Private Const IMAGESIZE = 0.566893424036281 ' By MaxExtreme (Tamaño de Imagen)
+Private Sub MDIForm_Resize()
+On Error Resume Next
+Dim ImageWidth As Single
+Dim ImageHeight As Single
+picStretch.Visible = False
+picStretch.AutoRedraw = True
+picStretch.Height = Me.ScaleHeight 'By Mirador
+ImageWidth = picStretch.Picture.Width * IMAGESIZE
+ImageHeight = picStretch.Picture.Height * IMAGESIZE
+picStretch.PaintPicture picStretch.Picture, 0, 0, Me.ScaleWidth, Me.ScaleHeight, 0, 0, ImageWidth, ImageHeight
+Set Me.Picture = picStretch.Image
+End Sub

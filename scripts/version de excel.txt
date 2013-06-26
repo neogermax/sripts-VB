@@ -1,0 +1,53 @@
+Dim ofver, texver
+
+ofver = Excel.Application.Version
+
+Select Case ofver
+
+Case "4.0"
+
+texver = "4"
+
+Case "4.2"
+
+texver = "5"
+
+Case "4.3"
+
+texver = "5"
+
+Case "7.0"
+
+texver = "5"
+
+Case "8.0"
+
+texver = "97"
+
+Case "9.0"
+
+texver = "2000"
+
+Case "10.0"
+
+texver = "2002 (Xp)"
+
+Case "11.0"
+
+texver = "2003"
+
+Case "12.0"
+
+texver = "2007"
+
+Case "14.0"
+
+texver = "2010"
+
+Case Else
+
+texver = "Version desconocida"
+
+End Select
+
+MsgBox "Usted usa Excel " & ofver & ", es decir Excel " & texver, vbInformation, "Microsoft Office Excel " & texver

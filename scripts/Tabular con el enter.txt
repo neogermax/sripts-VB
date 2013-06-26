@@ -1,0 +1,4 @@
+If KeyAscii = vbKeyReturn Then
+    KeyAscii = 0
+    SendKeys "{TAB}"
+End If

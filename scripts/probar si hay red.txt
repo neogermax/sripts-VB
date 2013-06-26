@@ -1,0 +1,31 @@
+    Option Explicit  
+      
+      
+    'Constantes para determinar que tipo de Red estamos conectados  
+      
+    Const NETWORK_ALIVE_AOL = &H4  
+    Const NETWORK_ALIVE_LAN = &H1  
+    Const NETWORK_ALIVE_WAN = &H2  
+      
+    'Función Api IsNetworkAlive para detectar _  
+     si estamos conectados y a que tipo de red  
+    Private Declare Function IsNetworkAlive Lib "SENSAPI.DLL" ( _  
+        ByRef lpdwFlags As Long) As Long  
+      
+    Private Sub Command1_Click()  
+      
+        Dim Ret As Long  
+      
+        'Si la Api retorna 0 quiere decir que no hay ningun tipo de conexión de Red  
+            If IsNetworkAlive(Ret) = 0 Then  
+      
+                MsgBox "El sistema no está conectado a una NetWork!", vbInformation  
+      
+            Else  
+                ' hay conexión , y muestra el tipo  
+                MsgBox "El sistema está conectado a: " + _  
+                       IIf(Ret = NETWORK_ALIVE_AOL, "AOL", _  
+                       IIf(Ret = NETWORK_ALIVE_LAN, "LAN", "WAN")) + " network", vbInformation  
+      
+        End If  
+    End Sub  

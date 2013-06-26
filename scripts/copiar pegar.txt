@@ -1,0 +1,12 @@
+'copiar
+
+Private Sub Command1_Click()
+    Clipboard.Clear
+    Clipboard.SetText Text1.Text
+End Sub
+
+'pegar
+
+Private Sub Command2_Click()
+    Text1.Text = Clipboard.GetText
+End Sub

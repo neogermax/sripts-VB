@@ -1,0 +1,65 @@
+Option Explicit
+
+Private Declare Function GetLogicalDriveStrings Lib "kernel32" _
+    Alias "GetLogicalDriveStringsA" _
+    (ByVal nBufferLength As Long, ByVal lpBuffer As String) As Long
+
+Private Function GetDriveStrings() As String
+    ' Funcion para llamar la API GetLogicalDriveStrings
+    
+    Dim result As Long          ' Resultado de las llamadas de la api
+    Dim strDrives As String     ' String que recibe los valores
+    Dim lenStrDrives As Long    ' Longitud del string anterior
+    
+    ' Invoca GetLogicalDriveStrings con un buffer de tamaño cero
+    ' para averiguar que tan grande necesita ser el string
+    result = GetLogicalDriveStrings(0, strDrives)
+    
+    strDrives = String(result, 0)
+    lenStrDrives = result
+    
+    ' Hace el llamado de nuevo con el nuevo bufer
+    result = GetLogicalDriveStrings(lenStrDrives, strDrives)
+    
+    If result = 0 Then
+        ' Hay un error con el llamado de la API
+        ' Se pasa todo en un string vacio
+        ' Implementar manipulacion de errores
+        GetDriveStrings = ""
+    Else
+        GetDriveStrings = strDrives
+    End If
+End Function
+
+Private Sub Command1_Click()
+    Dim strDrives As String
+    
+    ' Busca las unidades existentes en la maquina
+    strDrives = GetDriveStrings()
+    
+    If strDrives = "" Then
+        ' No se encontraron unidades
+        MsgBox "No Drives were found!", vbCritical
+    Else
+        ' Agrega cada elemento a la lista
+        DisplayDriveTypes strDrives
+    End If
+End Sub
+
+Private Sub DisplayDriveTypes(drives As String)
+    ' Recorre el string de la unidad y muestra unicamente la letra
+    ' El string de la unidad esta separado por nulls y termina en un null doble
+    
+    Dim pos As Long
+    Dim drive As String
+    
+    List1.Clear
+    pos = 1
+    
+    Do While Not Mid$(drives, pos, 1) = Chr(0)
+        drive = Mid$(drives, pos, 3)
+        pos = pos + 4
+        List1.AddItem UCase(drive)
+    Loop
+End Sub
+

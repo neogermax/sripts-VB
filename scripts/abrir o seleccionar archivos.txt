@@ -1,0 +1,18 @@
+Primero activar el control
+
+Para poder utilizar dichos cuadros de diálogo hay que incluir al proyecto el ocx Microsoft Common Dialog Controls. Esto se hace desde el menú Proyecto en la opción componentes.
+
+Insertarlo en el form
+
+************************ abrir archivo **********
+
+ With CommonDialog1
+ .Filename= ""
+.Filter = "Archivo BMP|*.bmp"
+ .ShowOpen
+ If .FileName <> "" Then
+ Picture1.Picture = LoadPicture(.FileName)
+End If
+ End With
+
+**************************************************

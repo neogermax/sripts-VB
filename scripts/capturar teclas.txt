@@ -1,0 +1,14 @@
+Lo primero que debes hacer es establecer la propiedad KeyPreview del formulario en True, esto hará que todas las pulsaciones de teclas sean procesadas primero por el formulario antes que por el control activo.
+
+El código para tu ejemplo sería:
+
+Private Sub Form1_KeyDown (KeyCode As Integer, Shift As Integer)
+
+Select Case KeyCode
+
+Case vbKeyF1
+Msgbox "Hola"
+
+End Select
+
+End Sub

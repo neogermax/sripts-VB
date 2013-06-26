@@ -1,0 +1,10 @@
+For Each Control In Controls
+
+ If InStr(1, Control.Name, "Text", vbTextCompare) Then
+  If Control.Text = "" Then
+    MsgBox "Debe diligenciar todos los campos!", vbInformation + vbOKOnly, "Información"
+    Exit Sub
+  End If
+ End If
+
+Next Control

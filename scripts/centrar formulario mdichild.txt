@@ -1,0 +1,4 @@
+cambiar form2 por el nombre del form hijo y mdiform1 por el form padre
+
+Form2.Left = (MDIForm1.ScaleWidth - Form2.Width) / 2
+Form2.Top = (MDIForm1.ScaleHeight - Form2.Height) / 2

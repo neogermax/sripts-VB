@@ -1,0 +1,13 @@
+On Error GoTo CTRLERR
+
+Exit Sub
+
+CTRLERR:
+
+Select Case Err.Number
+
+Case Else
+
+MsgBox "Se ha producido un error:" & vbCrLf & vbCrLf & "Error " & Err.Number & vbCrLf & Chr(34) & Err.Description & Chr(34) & vbCrLf & "Por favor contacte a su personal de soporte técnico para recibir asistencia.", vbCritical + vbOKOnly, "Atención!"
+
+End Select

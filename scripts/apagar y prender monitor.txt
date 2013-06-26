@@ -1,0 +1,38 @@
+Option Explicit  
+  
+'Api SendMessage  
+Private Declare Function SendMessage _  
+    Lib "user32" _  
+    Alias "SendMessageA" ( _  
+        ByVal hwnd As Long, _  
+        ByVal wMsg As Long, _  
+        ByVal wParam As Long, lParam As Any) As Long  
+  
+'Constantes para SendMessage  
+Const WM_SYSCOMMAND = &H112&  
+Const SC_MONITORPOWER = &HF170&  
+  
+Private Sub Command1_Click()  
+      
+      
+    If MsgBox("Agagar el monitor por 15 segundos ?", _  
+                vbQuestion) = vbNo Then Exit Sub  
+          
+        Timer1.Enabled = True  
+        'Apaga el monitor  
+        SendMessage Me.hwnd, WM_SYSCOMMAND, SC_MONITORPOWER, ByVal 2&  
+      
+End Sub  
+  
+Private Sub Form_Load()  
+    '15 segundos de lapso  
+    Timer1.Interval = 15000  
+    Timer1.Enabled = False  
+End Sub  
+  
+Private Sub Timer1_Timer()  
+      
+    Timer1.Enabled = False  
+    'Prende el monitor  
+    SendMessage Me.hwnd, WM_SYSCOMMAND, SC_MONITORPOWER, ByVal -1&  
+End Sub  

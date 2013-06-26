@@ -1,0 +1,40 @@
+Activar complemento
+
+Proyecto>Referencias>Microsoft scripting runtime
+
+
+***********revisar si carpeta existe*********
+
+Dim fso As New FileSystemObject
+
+If fso.FolderExists(App.Path & "\Batch") Then
+Else
+    fso.CreateFolder (App.Path & "\Batch")
+    Exit Sub
+End If
+
+*********************************************
+
+hacer algo por cada archivo en un subdirectrio
+
+************for de archivos******************
+
+Dim fso As New FileSystemObject
+Dim oFolder As Folder
+Dim oFile As File
+
+
+If fso.FolderExists(App.Path & "\Batch") Then
+Set oFolder = fso.GetFolder(App.Path & "\Batch")
+
+    For Each oFile In oFolder.Files
+    
+	msgbox ofile.name
+    
+    Next
+
+End If
+
+MsgBox "Se ha completado la operación!", vbInformation + vbOKOnly, "Información"
+
+*********************************************

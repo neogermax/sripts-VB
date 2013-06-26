@@ -1,0 +1,14 @@
+'Poner la escala del form y del picture en pixeles
+
+'Abajo
+Picture1.Picture = LoadPicture("I:\FILE0129.jpg")
+Picture1.AutoSize = True
+Picture1.Left = ScaleWidth - Picture1.Width
+Picture1.Top = ScaleHeight - Picture1.Height
+
+
+'Arriba
+Picture1.Picture = LoadPicture("I:\FILE0129.jpg")
+Picture1.AutoSize = True
+Picture1.Left = 0
+Picture1.Top = 0

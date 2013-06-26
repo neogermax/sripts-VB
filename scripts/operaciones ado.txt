@@ -1,0 +1,250 @@
+activar en "referencias"   -> activex data objects
+
+***** Agregar registro *****
+
+
+rstusernames.AddNew
+    rstusernames("USER_NAME") = txtNewUserName.Text
+    rstusernames("PASSWORD") = Encrypt(txtConfirmPassword)
+    If optAdmin.Value = True Then
+        rstusernames("TYPE") = "1"
+        rstusernames("READ_P") = "1"
+        rstusernames("WRITE_P") = "1"
+    ElseIf optLimited.Value = True Then
+        rstusernames("TYPE") = "0"
+        rstusernames("READ_P") = "1"
+        rstusernames("WRITE_P") = "0"
+    End If
+rstusernames.Update
+
+
+
+*******************************
+
+****** abrir conexion en el load del userform
+
+On Error Resume Next
+Set rstusernames = New ADODB.Recordset
+    rstusernames.CursorLocation = adUseClient
+    rstusernames.Open "SELECT * FROM ACCOUNT_SET ORDER BY ID", dbcon, adOpenStatic, adLockOptimistic
+    optAdmin.Value = True
+    'MsgBox rstusernames.RecordCount
+If rstusernames.RecordCount = 8 Or rstusernames.RecordCount > 8 Then
+    MsgBox "You have reached the maximum number of users." & vbCrLf & "No more User Accounts cannot be created...!", vbExclamation
+    txtConfirmPassword.Enabled = False
+    txtNewPassword.Enabled = False
+    txtNewUserName.Enabled = False
+    chkShowPasswordCreateuser.Enabled = False
+    optAdmin.Enabled = False
+    optLimited.Enabled = False
+    cmdCreate.Enabled = False
+End If
+
+
+***************************************
+
+************** cerrar conexion al salir **********
+
+On Error Resume Next
+rstusernames.Close
+Set rstusernames = Nothing
+
+**************************************************
+
+
+**************** eliminar registros ************************
+
+
+Set rstusernamefordelete = New ADODB.Recordset
+     rstusernamefordelete.CursorLocation = adUseClient
+      rstusernamefordelete.Open "SELECT * FROM ACCOUNT_SET WHERE USER_NAME = '" & cmbUsernames.Text & "'", dbcon, adOpenStatic, adLockOptimistic
+If MsgBox("Are you sure you need to delete the account " & cmbUsernames & " ?", vbYesNo + vbQuestion) = vbYes Then
+    If rstusernamefordelete.RecordCount > 0 Then
+        If UCase(rstusernamefordelete("USER_NAME")) = UCase("Administrator") Then
+            MsgBox "The Account " & cmbUsernames & " is a built-in account." & vbCrLf & "It cannot be deleted.", vbCritical
+            Exit Sub
+        End If
+            On Error GoTo Err
+            rstusernamefordelete.Delete
+            MsgBox "User Account " & cmbUsernames & " successfully deleted.", vbInformation
+            cmbUsernames.Clear
+            Form_Load
+        End If
+End If
+rstusernamefordelete.Close
+Set rstusernamefordelete = Nothing
+
+
+***********************************************************************
+
+
+*********cargar items en un combo****************
+
+Public Sub Add_User_Names_to_Combo()
+If rstusernames.RecordCount > 0 Then
+    cmbUsernames.Clear
+    Do While Not rstusernames.EOF
+        cmbUsernames.AddItem rstusernames("USER_NAME")
+        rstusernames.MoveNext
+    Loop
+End If
+rstusernames.Close
+Set rstusernames = Nothing
+End Sub
+
+******************************************************
+
+************* modificar un registro *******************************
+
+ Set rstgetusername = New ADODB.Recordset
+     rstgetusername.CursorLocation = adUseClient
+     rstgetusername.Open "SELECT * FROM ACCOUNT_SET WHERE USER_NAME = '" & cmbUsernames & "'", dbcon, adOpenStatic, adLockOptimistic
+      oldpass = Decrypt(rstgetusername("PASSWORD"))
+      
+     If txtOldPassword <> oldpass Then
+        MsgBox "Old password is wrong.", vbCritical
+            With txtOldPassword
+                .SetFocus
+                .SelStart = 0
+                .SelLength = Len(txtOldPassword)
+            End With
+        Exit Sub
+     End If
+     
+     If txtNewPassword.Text = "" Then
+        MsgBox "Password is required.", vbExclamation
+            With txtNewPassword
+                .SetFocus
+                .SelStart = 0
+                .SelLength = Len(txtNewPassword)
+            End With
+        Exit Sub
+     End If
+     
+     If txtConfirmPassword.Text = "" Then
+        MsgBox "Confirm password is required.", vbExclamation
+            With txtConfirmPassword
+                .SetFocus
+                .SelStart = 0
+                .SelLength = Len(txtConfirmPassword)
+            End With
+        Exit Sub
+     End If
+     
+     If txtNewPassword <> txtConfirmPassword Then
+        MsgBox "Password confirmation failed." & vbCrLf & "Please enter passwords again.", vbCritical
+        txtNewPassword.Text = ""
+        txtConfirmPassword.Text = ""
+            With txtNewPassword
+                .SetFocus
+                .SelStart = 0
+                .SelLength = Len(txtNewPassword)
+            End With
+        Exit Sub
+     ElseIf txtNewPassword = txtConfirmPassword Then
+        rstgetusername("PASSWORD") = Encrypt(txtConfirmPassword)
+        rstgetusername.Update
+        MsgBox "Password successfully changed." & vbCrLf & "Log in again for the changes.", vbInformation
+        txtOldPassword.Text = ""
+        txtNewPassword.Text = ""
+        txtConfirmPassword.Text = ""
+        txtOldPassword.SetFocus
+     End If
+rstgetusername.Close
+Set rstgetusername = Nothing
+
+**************************************************
+
+
+***** buscar registro **************
+
+On Error GoTo Err
+'rststdinfo.Close
+'Set rststdinfo = Nothing
+If txtSearch.Text = "" Then
+    MsgBox "Search field is empty...!", vbExclamation
+    txtSearch.SetFocus
+    Exit Sub
+End If
+blnstdSearch = True
+'Set rststdinfosearch = New ADODB.Recordset
+    'rststdinfosearch.CursorLocation = adUseClient
+    'rststdinfosearch.Open "SELECT * FROM CusInfo ORDER BY ID", dbcon, adOpenStatic, adLockOptimistic
+Dim Find_val As String
+Find_val = txtSearch
+'Set rststdinfo = New ADODB.Recordset
+'rststdinfo.Open "SELECT* FROM STUDENTINFO WHERE[STD_ID] = '" & Find_val & "'", dbcon, adOpenStatic, adLockOptimistic
+    intSearch_delete = 1
+    Select Case cmbSearchOption.ListIndex
+        Case 0: Set rststdinfo = New ADODB.Recordset
+                rststdinfo.Open "SELECT* FROM STUDENTINFO WHERE[STD_ID] = '" & Find_val & "'", dbcon, adOpenStatic, adLockOptimistic: Inforfield
+        Case 1: Set rststdinfo = New ADODB.Recordset
+                rststdinfo.Open "SELECT* FROM STUDENTINFO WHERE[STD_EXAM_INDEX] = '" & Find_val & "'", dbcon, adOpenStatic, adLockOptimistic: Inforfield
+        Case 2: Set rststdinfo = New ADODB.Recordset
+                rststdinfo.Open "SELECT* FROM STUDENTINFO WHERE[STD_NIC_PASSPORT] = '" & Find_val & "'", dbcon, adOpenStatic, adLockOptimistic: Inforfield
+        Case 3: Set rststdinfo = New ADODB.Recordset
+                rststdinfo.Open "SELECT* FROM STUDENTINFO WHERE[STD_NAME] Like '" & Find_val & "%'", dbcon, adOpenStatic, adLockOptimistic: Inforfield
+    End Select
+Inforfield
+Exit Sub
+Err:
+MsgBox "Error occured: " & Err.Description
+
+*****************
+
+
+****************** movimientos por los registros ****************
+
+
+Private Sub cmdStdFirst_Click()
+   If rststdinfo.BOF = False Then
+        rststdinfo.MoveFirst
+        Inforfield
+        MsgBox "You are on the First Record.", vbInformation
+   End If
+End Sub
+
+Private Sub cmdStdLast_Click()
+  If rststdinfo.EOF = False Then
+        rststdinfo.MoveLast
+        Inforfield
+        MsgBox "You are on the Last Record.", vbInformation
+  End If
+End Sub
+
+Private Sub cmdStdNext_Click()
+On Error Resume Next
+   If rststdinfo.EOF = False Then
+        rststdinfo.MoveNext
+        Inforfield
+   ElseIf rststdinfo.EOF Then
+        rststdinfo.MoveLast
+        Inforfield
+        MsgBox "You are on the Last Record.", vbInformation
+   End If
+End Sub
+
+Private Sub cmdStdPrevious_Click()
+   If rststdinfo.BOF = False Then
+        rststdinfo.MovePrevious
+        Inforfield
+   ElseIf rststdinfo.BOF = True Then
+        rststdinfo.MoveFirst
+        Inforfield
+        MsgBox "You are on the first Record.", vbInformation
+   End If
+End Sub
+
+
+*******************************************
+
+
+**** cargar db **********
+
+Database_Path = App.Path & "\DBs\Datafoto01.mdb"
+Set dbcon = New ADODB.Connection
+dbcon.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Database_Path & _
+                         ";Persist Security Info=False;Jet OLEDB:Database Password="
+dbcon.Open
+
+*********************
